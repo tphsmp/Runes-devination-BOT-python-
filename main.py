@@ -39,7 +39,7 @@ runes = [Runa("Fehu", "sd", "id", "", "", "\u16A0"),
 newList = []
 
 
-# Метод, который получает сообщения и обрабатывает их
+# Метод получает сообщения и обрабатывает их
 
 
 @bot.message_handler(content_types=['text'])
@@ -48,7 +48,7 @@ def get_text_messages(message):
         bot.send_message(message.from_user.id, "Привет, я онлайн оракул.")
         # Готовим кнопки
         keyboard = types.InlineKeyboardMarkup()
-        # По очереди готовим текст и обработчик для каждого знака зодиака
+        # По очереди готовим текст и обработчик
         key_runeoftheday = types.InlineKeyboardButton(text='Руна дня', callback_data='runeoftheday')
         keyboard.add(key_runeoftheday)
         key_threerunes = types.InlineKeyboardButton(text='Три руны', callback_data='threerunes')
@@ -64,9 +64,8 @@ def get_text_messages(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_worker(call):
-    # Если нажали на одну из 12 кнопок — выводим гороскоп
-    if call.data == "runeoftheday":
-        # msg = choice(runes)
+    # Обработка нажатия кнопок
+    if call.data == "runeoftheday"
         # Отправляем текст в Телеграм
         msg = choice(runes)
         if msg.position == 0 or msg.name == "Gifu" or msg.name == "Hagalaz" or msg.name == "Nautiz" \
@@ -90,4 +89,7 @@ print("Bot is running")
 # for i in runes:
 # print(i.name, i.ascii, i.position)
 
-bot.polling(none_stop=True, interval=0)
+try:
+    bot.polling(none_stop=True, interval=0)
+except Exception as err:
+    print('Something is wrong: ', str(err))
