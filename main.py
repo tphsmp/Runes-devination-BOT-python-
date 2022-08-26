@@ -1,95 +1,73 @@
-import const
+from aiogram import Bot, Dispatcher, executor, types
 
-from runa import Runa
-
+from lists import runes
+from config import TOKEN
 from random import choice
 
-import telebot
-
-from telebot import types
-
-bot = telebot.TeleBot(const.TOKEN)
-
-runes = [Runa("Fehu", "sd", "id", "", "", "\u16A0"),
-         Runa("Uruz", "sd", "id", "", "", "\u16A2"),
-         Runa("Thurusaz", "sd", "id", "", "", "\u16A6"),
-         Runa("Ansuz", "sd", "id", "", "", "\u16A8"),
-         Runa("Raido", "sd", "id", "", "", "\u16B1"),
-         Runa("Kenaz", "sd", "id", "", "", "\u16B2"),
-         Runa("Gifu", "sd", "sd", "", "", "\u16B7"),
-         Runa("Wunjo", "sd", "id", "", "", "\u16B9"),
-         Runa("Hagalaz", "sd", "sd", "", "", "\u16BA"),
-         Runa("Nautiz", "sd", "sd", "", "", "\u16BE"),
-         Runa("Isa", "sd", "sd", "", "", "\u16C1"),
-         Runa("Jera", "sd", "sd", "", "", "\u16C3"),
-         Runa("Eihwaz", "sd", "sd", "", "", "\u16C7"),
-         Runa("Perthro", "sd", "id", "", "", "\u16C8"),
-         Runa("Algiz", "sd", "id", "", "", "\u16C9"),
-         Runa("Siegel", "sd", "sd", "", "", "\u16CB"),
-         Runa("Tyr", "sd", "id", "", "", "\u16CF"),
-         Runa("Berkana", "sd", "id", "", "", "\u16D2"),
-         Runa("Ehwaz", "sd", "id", "", "", "\u16D6"),
-         Runa("Mannaz", "sd", "id", "", "", "\u16D7"),
-         Runa("Laguz", "sd", "id", "", "", "\u16DA"),
-         Runa("Ingwaz", "sd", "sd", "", "", "\u16DD"),
-         Runa("Dagaz", "sd", "sd", "", "", "\u16DE"),
-         Runa("Othel", "sd", "id", "", "", "\u16DF"),
-         Runa("Wyrd", "sd", "sd", "", "", "\u25CB")]
-
-newList = []
+bot = Bot(token=TOKEN)
+dp = Dispatcher(bot)
 
 
-# Метод получает сообщения и обрабатывает их
+# обработка команды /start при отправке команды бот выводит две кнопки для выбора рунного расклада
+@dp.message_handler(commands=['start'])
+async def command_start(message: types.Message):
+    await bot.send_message(message.from_user.id, f"Привет {message['from']['last_name']}! Я рунический оракул и могу "
+                                                 f"помочь тебе советом рун. Просто выбери действие:\n\n"
+                                                 f"/one_rune - Руна дня. Даст тебе совет на сегодняшний день.\n\n"
+                                                 f"/three_runes - Расклад из трех рун. Поможет тебе разобраться в ситуации.\n\n"
+                                                 f"Если хочешь знать как твое имя пишется рунами - напиши мне свое имя латинскими буквами")
 
 
-@bot.message_handler(content_types=['text'])
-def get_text_messages(message):
-    if message.text == "Привет":
-        bot.send_message(message.from_user.id, "Привет, я онлайн оракул.")
-        # Готовим кнопки
-        keyboard = types.InlineKeyboardMarkup()
-        # По очереди готовим текст и обработчик
-        key_runeoftheday = types.InlineKeyboardButton(text='Руна дня', callback_data='runeoftheday')
-        keyboard.add(key_runeoftheday)
-        key_threerunes = types.InlineKeyboardButton(text='Три руны', callback_data='threerunes')
-        keyboard.add(key_threerunes)
-        bot.send_message(message.from_user.id, text='Выбери расклад', reply_markup=keyboard)
-
-    elif message.text == "/help":
-        bot.send_message(message.from_user.id, "Напиши Привет")
-
-    else:
-        bot.send_message(message.from_user.id, "Я тебя не понимаю. Напиши /help")
+# обработка команд расклада
+@dp.message_handler(commands=['one_rune'])
+async def one_rune_command(message):
+    runa = choice(runes)
+    if runa.position == 0:
+        with open(runa.image, 'rb') as runa_image:
+            await bot.send_photo(message.chat.id, photo=runa_image, disable_notification=True)
+    if runa.position == 1:
+        with open(runa.image_inversed, 'rb') as runa_image:
+            await bot.send_photo(message.chat.id, photo=runa_image, disable_notification=True)
+    runa = str(runa)
+    await bot.send_message(message.chat.id, runa)
 
 
-@bot.callback_query_handler(func=lambda call: True)
-def callback_worker(call):
-    # Обработка нажатия кнопок
-    if call.data == "runeoftheday"
-        # Отправляем текст в Телеграм
-        msg = choice(runes)
-        if msg.position == 0 or msg.name == "Gifu" or msg.name == "Hagalaz" or msg.name == "Nautiz" \
-                or msg.name == "Isa" or msg.name == "Jera" or msg.name == "Eihwaz" or msg.name == "Siegel" \
-                or msg.name == "Ingwaz" or msg.name == "Dagaz" or msg.name == "Wyrd":
-            msg.position = 0
-        bot.send_message(call.message.chat.id, msg)
-
-    elif call.data == "threerunes":
-        for i in range(3):
-            msg1 = choice(runes)
-            newList.append(msg1)
-            runes.remove(msg1)
-
-            bot.send_message(call.message.chat.id, msg1)
+@dp.message_handler(commands=['three_runes'])
+async def three_runes_command(message):
+    new_list = runes.copy()
+    for i in range(3):
+        runa = choice(new_list)
+        if runa.position == 0:
+            with open(runa.image, 'rb') as runa_image:
+                await bot.send_photo(message.chat.id, photo=runa_image, disable_notification=True)
+        if runa.position == 1:
+            with open(runa.image_inversed, 'rb') as runa_image:
+                await bot.send_photo(message.chat.id, photo=runa_image, disable_notification=True)
+        runa1 = str(runa)
+        new_list.remove(runa)
+        await bot.send_message(message.chat.id, runa1)
 
 
-print("Bot is running")
+# при отправке боту текстового сообщения он конвертирует символы латиницы в символы рун
+@dp.message_handler(content_types=['text'])
+async def chat_message_handle(message):
+    word = str(message.text)
+    word = word.upper()
+    letters = []
+    for letter in word:
+        letters.append(letter)
+    runes_list = {}
+    for i in runes:
+        runes_list[i.letter] = i.ascii
+        if i.second_letter != "":
+            runes_list[i.second_letter] = i.ascii
+    runic_name = []
+    for i in letters:
+        runic_name.append(runes_list.get(i))
+    name = "".join(runic_name)
+    await bot.send_message(message.chat.id, name)
 
-# проверка правильности отображения символов рун
-# for i in runes:
-# print(i.name, i.ascii, i.position)
 
-try:
-    bot.polling(none_stop=True, interval=0)
-except Exception as err:
-    print('Something is wrong: ', str(err))
+# запуск бота
+if __name__ == '__main__':
+    executor.start_polling(dp, skip_updates=True)
