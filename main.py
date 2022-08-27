@@ -3,6 +3,7 @@ from aiogram import Bot, Dispatcher, executor, types
 from lists import runes
 from config import TOKEN
 from random import choice
+from runa import RunesLayout
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
@@ -22,30 +23,14 @@ async def command_start(message: types.Message):
 @dp.message_handler(commands=['one_rune'])
 async def one_rune_command(message):
     runa = choice(runes)
-    if runa.position == 0:
-        with open(runa.image, 'rb') as runa_image:
-            await bot.send_photo(message.chat.id, photo=runa_image, disable_notification=True)
-    if runa.position == 1:
-        with open(runa.image_inversed, 'rb') as runa_image:
-            await bot.send_photo(message.chat.id, photo=runa_image, disable_notification=True)
-    runa = str(runa)
-    await bot.send_message(message.chat.id, runa)
+    await RunesLayout.get_rune(runa, message.chat.id)
 
 
 @dp.message_handler(commands=['three_runes'])
 async def three_runes_command(message):
-    new_list = runes.copy()
     for i in range(3):
-        runa = choice(new_list)
-        if runa.position == 0:
-            with open(runa.image, 'rb') as runa_image:
-                await bot.send_photo(message.chat.id, photo=runa_image, disable_notification=True)
-        if runa.position == 1:
-            with open(runa.image_inversed, 'rb') as runa_image:
-                await bot.send_photo(message.chat.id, photo=runa_image, disable_notification=True)
-        runa1 = str(runa)
-        new_list.remove(runa)
-        await bot.send_message(message.chat.id, runa1)
+        runa = choice(runes)
+        await RunesLayout.get_rune(runa, message.chat.id)
 
 
 # при отправке боту текстового сообщения он конвертирует символы латиницы в символы рун

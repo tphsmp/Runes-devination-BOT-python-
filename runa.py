@@ -25,3 +25,20 @@ class Runa:
             return "%s %s %s %s" % (self.name, self.ascii, self.description, "прямое положение")
         if self.position == 1:
             return "%s %s %s %s" % (self.name, self.ascii, self.descriptionInverted, "перевернутое положение")
+
+
+class RunesLayout:
+    @classmethod
+    async def get_rune(cls, runa, message=None):
+        from aiogram_main import bot
+        from lists import runes
+        runes1 = runes.copy()
+        if runa.position == 0:
+            with open(runa.image, 'rb') as runa_image:
+                await bot.send_photo(message, photo=runa_image, disable_notification=True)
+        if runa.position == 1:
+            with open(runa.image_inversed, 'rb') as runa_image:
+                await bot.send_photo(message, photo=runa_image, disable_notification=True)
+        runa1 = str(runa)
+        runes1.remove(runa)
+        await bot.send_message(message, runa1)
