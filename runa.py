@@ -10,8 +10,10 @@ class Runa:
         self.name = name
         self.description = description
         self.descriptionInverted = descriptionInverted
+        # для рун не имеющих перевернутого значения по умолчанию задается всегда прямое положение
         if name in ('Gifu', 'Hagalaz', 'Nautiz', 'Isa', 'Jera', 'Eihwaz', 'Siegel', 'Ingwaz', 'Dagaz', 'Wyrd'):
             self.position = 0
+        # для остальных рун положение генерируется случайно     
         else:
             self.position = random.randint(0, 1)
         self.ascii = ascii
