@@ -23,14 +23,14 @@ async def command_start(message: types.Message):
 @dp.message_handler(commands=['one_rune'])
 async def one_rune_command(message):
     runa = choice(runes)
-    await RunesLayout.get_rune(runa, message.chat.id)
+    await RunesLayout.get_rune(runa, runes, message.chat.id)
 
 
 @dp.message_handler(commands=['three_runes'])
 async def three_runes_command(message):
     for i in range(3):
         runa = choice(runes)
-        await RunesLayout.get_rune(runa, message.chat.id)
+        await RunesLayout.get_rune(runa, runes, message.chat.id)
 
 
 # при отправке боту текстового сообщения он конвертирует символы латиницы в символы рун
@@ -41,14 +41,14 @@ async def chat_message_handle(message):
     letters = []
     for letter in word:
         letters.append(letter)
-    runes_list = {}
+    runes = {}
     for i in runes:
-        runes_list[i.letter] = i.ascii
+        runes[i.letter] = i.ascii
         if i.second_letter != "":
-            runes_list[i.second_letter] = i.ascii
+            runes[i.second_letter] = i.ascii
     runic_name = []
     for i in letters:
-        runic_name.append(runes_list.get(i))
+        runic_name.append(runes.get(i))
     name = "".join(runic_name)
     await bot.send_message(message.chat.id, name)
 
